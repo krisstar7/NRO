@@ -1,1 +1,2 @@
-"NRO 2024" 
+Kristijan Danov
+23221364
