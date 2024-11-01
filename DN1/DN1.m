@@ -29,6 +29,8 @@ title("graf P(t)");
 xlabel("t[s]");
 ylabel("P[W]");
 
+% saveas(gcf, "graf.png")
+
 
 
 % Nalog 3
