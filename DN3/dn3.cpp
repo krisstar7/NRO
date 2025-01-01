@@ -17,7 +17,7 @@ double calcAtan(double x, int N_steps){
 
 double func(double x, int N_steps){
     double rez;
-    rez = exp(3*x)*calcAtan(x, N_steps);
+    rez = exp(3*x)*calcAtan(x/2, N_steps);
     return rez;
 }
 
