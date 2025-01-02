@@ -146,11 +146,12 @@ int main() {
     {
       cout<<"Iteracija No: "<<iitt<<endl;
       Told = T;
-      #pragma omp parallel shared(A, b, T) private(jj, ii, d)
+      #pragma omp parallel sections shared(A, b, T) private(jj, ii, d) num_threads(4)
       {
 
-      #pragma omp for
-      for(jj=0; jj<n; jj++){
+      #pragma omp section
+      {
+      for(jj=0; jj<n/4; jj++){
         d = b[jj];
         
         for(ii=0; ii<n; ii++){
@@ -158,9 +159,54 @@ int main() {
             d -= A[jj][ii] * Told[ii];
           }
         }
-
         
         T[jj] = d / A[jj][jj];
+      }
+      }
+
+      #pragma omp section
+      {
+      for(jj=n/4; jj<n/2; jj++){
+        d = b[jj];
+        
+        for(ii=0; ii<n; ii++){
+          if(jj!=ii){
+            d -= A[jj][ii] * Told[ii];
+          }
+        }
+        
+        T[jj] = d / A[jj][jj];
+      }
+      }
+
+      #pragma omp section
+      {
+      for(jj=n/2; jj<(3*n)/4; jj++){
+        d = b[jj];
+        
+        for(ii=0; ii<n; ii++){
+          if(jj!=ii){
+            d -= A[jj][ii] * Told[ii];
+          }
+        }
+        
+        T[jj] = d / A[jj][jj];
+      }
+      }
+
+      #pragma omp section
+      {
+      for(jj=(3*n)/4; jj<n; jj++){
+        d = b[jj];
+        
+        for(ii=0; ii<n; ii++){
+          if(jj!=ii){
+            d -= A[jj][ii] * Told[ii];
+          }
+        }
+        
+        T[jj] = d / A[jj][jj];
+      }
       }
 
       }
