@@ -144,9 +144,14 @@ int main() {
   vector<double> Told = T;
   for (int iitt=0; iitt<2000; iitt++)
     {
-      cout<<"Iteracija No: "<<iitt<<endl;
+      // cout<<"Iteracija No: "<<iitt<<endl;
       Told = T;
-      #pragma omp parallel shared(A, b, T) private(jj, ii, d)
+
+      // Each thread calculates a new T value based on T values from the previous iteration(Told)
+      // We can better the performance by giving it more threads to work with, with num_threads(n)
+      // In Eijkhout's The Science of Computing[7.9.1], it is suggested that we can parallelize this method by multi-coloring or with wavefronts.
+
+      #pragma omp parallel shared(A, b, T, Told) private(jj, ii, d)
       {
 
       #pragma omp for
@@ -155,7 +160,7 @@ int main() {
         
         for(ii=0; ii<n; ii++){
           if(jj!=ii){
-            d -= A[jj][ii] * Told[ii];
+            d -= A[jj][ii] * T[ii];
           }
         }
 

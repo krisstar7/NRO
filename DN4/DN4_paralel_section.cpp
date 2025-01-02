@@ -144,8 +144,18 @@ int main() {
   vector<double> Told = T;
   for (int iitt=0; iitt<2000; iitt++)
     {
-      cout<<"Iteracija No: "<<iitt<<endl;
+      // cout<<"Iteracija No: "<<iitt<<endl;
       Told = T;
+      
+      // We split the work in 4 quarters.
+      // Meaning, each thread does a quarter of the work.
+      // It is good, but the other method is better because is easier to scale up.
+      // Inspired by: transpose_section_parallel.cpp
+
+      // I also tried the section method by, serially going throgh every row, and 
+      // split the row into sections, and did the A[jj][ii] * Told[ii] operation
+      // This way was WAY slower 
+      
       #pragma omp parallel sections shared(A, b, T) private(jj, ii, d) num_threads(4)
       {
 
