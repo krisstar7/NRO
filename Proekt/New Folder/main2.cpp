@@ -13,8 +13,45 @@
 #include <unordered_map>
 #include <array>
 #include <set>
+#include <bits/stdc++.h>
 
 using namespace std;
+
+bool makeDiagonallyDominant(vector<vector<double>>& A, vector<double>& b) {
+    int n = A.size();
+    for (int i = 0; i < n; ++i) {
+        int maxRow = i;
+        double maxValue = std::abs(A[i][i]);
+
+        // Find row with maximum diagonal element
+        for (int k = i + 1; k < n; ++k) {
+            if (std::abs(A[k][i]) > maxValue) {
+                maxRow = k;
+                maxValue = std::abs(A[k][i]);
+            }
+        }
+
+        // Swap rows if a better candidate is found
+        if (maxRow != i) {
+            std::swap(A[i], A[maxRow]);
+            std::swap(b[i], b[maxRow]);
+        }
+    }
+
+    // Verify diagonal dominance
+    for (int i = 0; i < n; ++i) {
+        double sum = 0;
+        for (int j = 0; j < n; ++j) {
+            if (i != j) sum += std::abs(A[i][j]);
+        }
+        if (std::abs(A[i][i]) < sum) {
+            return false; // Not diagonally dominant
+        }
+    }
+
+    return true; // Successfully reordered
+}
+
 
 std::string trim( const std::string & s )
 {
@@ -41,8 +78,8 @@ int main() {
     vector<double> T;
     double dx = 1.25;
     double dy = 1.25;
-    int h = 100;
-    int k = 24;
+    double h = 100;
+    double k = 24;
     const int n = 5754;
     constexpr size_t SIZE = static_cast<size_t>(n);
 
@@ -66,16 +103,15 @@ int main() {
     // replace(string_first_line.begin(), string_first_line.end(), '=', ' ');
     
     //Inicijaliziram A, b, T
-    
+    vector<double> row;
+
+    for(int j=0; j<n; j++){
+        row.push_back(0);
+    }
+
     for (int i=0; i<n; i++){
-        T.push_back(0);
+        T.push_back(100);
         b.push_back(0);
-
-        vector<double> row;
-
-        for(int j=0; j<n; j++){
-            row.push_back(0);
-        }
         A.push_back(row);
 
     }
@@ -245,6 +281,89 @@ int main() {
 
     int counter=0;
     unordered_set<int> done;
+    vector<int> s;
+    s.reserve(T1.size()+T2.size()+q3.size()+T4.size()+T5ex.size());
+    s.insert(s.end(), T1.begin(), T1.end());
+    s.insert(s.end(), T2.begin(), T2.end());
+    s.insert(s.end(), q3.begin(), q3.end());
+    s.insert(s.end(), T4.begin(), T4.end());
+    s.insert(s.end(), T5ex.begin(), T5ex.end());
+    set<int> ss(s.begin(), s.end());
+
+    for(int i = 0; i<n; i++){
+        if(count(T1.begin(), T1.end(), i) > 0){
+            printf("Bang T1\n");
+            A[i][i] = 1;
+            b[i] = 400;
+        }else if(count(T2.begin(), T2.end(), i) > 0){
+            printf("Bang T2\n");
+            A[i][i] = 1;
+            b[i] = 100;
+        }else if(count(q3.begin(), q3.end(), i) > 0){
+            printf("Bang q3\n");
+            for(auto elem : adjM[i]){
+                if(points[elem].isInner)
+                    A[i][elem] = 2;
+                else
+                    A[i][elem] = 1;
+            }
+            b[i] = 0;
+        }else if(count(T4.begin(), T4.end(), i) > 0){
+            printf("Bang T4\n");
+            A[i][i] = 1;
+            b[i] = 600;
+        }else if(count(T5ex.begin(), T5ex.end(), i) > 0){
+            printf("Bang T5\n");
+            //preveri rob ali notranjem
+            if(points[i].isInner){
+                //notr
+                for(auto elem : adjM[i]){
+                    if(points[elem].isInner)
+                        A[i][elem] = 2;
+                    else
+                        A[i][elem] = 1;
+                }
+                A[i][i] = -2*(3+(h*dx)/k);
+
+            }else{
+                //rob
+                for(auto elem : adjM[i]){
+                    A[i][elem] = 2;
+                }
+                A[i][i] = -2*(2+(h*dx)/k);
+            }
+
+            b[i] = -2*(h*dx*200)/k;
+        }else{
+                printf("Inner\n");
+                A[i][i] = -4;
+                for(auto elem : adjM[i]){
+                    A[i][elem] = 1;
+                }
+                b[i] = 0;
+
+        }
+    
+    }
+
+
+    /*
+    //Notranjost
+    for(auto p : points){
+        if(p.isInner){
+            if(ss.find(p.ID) == ss.end()){
+                A[counter][p.ID] = -4;
+                for(auto elem : adjM[p.ID]){
+                    A[counter][elem] = 1;
+                }
+                b[counter] = 0;
+
+                counter++;
+            }
+        }
+    }
+
+
 
     //Pog 1
     for(auto id : T1){
@@ -315,33 +434,8 @@ int main() {
         b[counter] = -2*(h*dx*200)/k;
         counter++;
     }
+    */
 
-    vector<int> s;
-    s.reserve(T1.size()+T2.size()+q3.size()+T4.size()+T5ex.size());
-    s.insert(s.end(), T1.begin(), T1.end());
-    s.insert(s.end(), T2.begin(), T2.end());
-    s.insert(s.end(), q3.begin(), q3.end());
-    s.insert(s.end(), T4.begin(), T4.end());
-    s.insert(s.end(), T5ex.begin(), T5ex.end());
-
-    // cout<<s.size()<<endl;
-    set<int> ss(s.begin(), s.end());
-    // cout<<ss.size()<<endl;
-
-    //Notranjost
-    for(auto p : points){
-        if(p.isInner){
-            if(ss.find(p.ID) == ss.end()){
-                A[counter][p.ID] = -4;
-                for(auto elem : adjM[p.ID]){
-                    A[counter][elem] = 1;
-                }
-                b[counter] = 0;
-
-                counter++;
-            }
-        }
-    }
 
     // cout<<n-counter<<endl;
 
@@ -352,8 +446,50 @@ int main() {
 
     // cout<<counter2<<endl;
 
-    
+    // if(makeDiagonallyDominant(A, b))
+    //     printf("Sucess\n");
 
+    // ofstream File("A.txt");
+    // File<<"Test line";
+    // for(int i=0; i<n; i++){
+    //     for(int j = 0; j<n; j++){
+    //         File<<A[i][j]<<";";
+    //     }
+    //     File<<"\n";
+    // }
+    // File.close();
+
+    for(int i=0; i<n; i+=50){
+        cout<<A[i][i]<<endl;
+    }
+
+    // double d;
+    // int ii, jj;
+    // for (int iitt=0; iitt<1; iitt++){
+    //     printf("Iteracija no.%d \n", iitt);
+
+    //     // #pragma omp parallel shared(A, b, T) private(jj, ii, d)
+    //     // {
+    //     //     #pragma omp for
+    //         for(jj=0; jj<n; jj++){
+    //             d = b[jj];
+                
+    //             for(ii=0; ii<n; ii++){
+    //                 if(jj!=ii){
+    //                     d = d - A[jj][ii] * T[ii];
+    //                 }
+                
+    //                 T[jj] = d / A[jj][jj];
+    //             }
+    //         }
+    //     // }
+    // }
+
+    // int ind=0;
+    // for(auto i : T){
+    //     cout<<ind<<"\t"<<i<<endl;
+    //     ind++;
+    // }
 
     return 0;
 }
