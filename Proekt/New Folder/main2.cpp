@@ -70,6 +70,14 @@ struct Point{
     // int* idAdj; 
 };
 
+struct KE{
+    int ID;
+    int a;
+    int b;
+    int c;
+    int d;
+};
+
 int main() {
 
     //Matrix A in b
@@ -118,6 +126,7 @@ int main() {
     
     //Preberi tocke
     vector<Point> points;
+    vector<KE> elementi;
     array<unordered_set<int>, SIZE> adjM;
 
     for(int i = 0; i<n; i++){
@@ -172,11 +181,21 @@ int main() {
         iss >> id3Temp;
         iss >> id4Temp;
 
+        int pid = stoi(idTemp);
         int p1 = stoi(id1Temp);
         int p2 = stoi(id2Temp);
         int p3 = stoi(id3Temp);
         int p4 = stoi(id4Temp);
         
+        KE temp;
+        temp.ID = pid;
+        temp.a = p1;
+        temp.b = p2;
+        temp.c = p3;
+        temp.d = p4;
+
+        elementi.push_back(temp);
+
         adjM[p1].insert(p2);
         adjM[p1].insert(p4);
 
@@ -292,31 +311,32 @@ int main() {
 
     for(int i = 0; i<n; i++){
         if(count(T1.begin(), T1.end(), i) > 0){
-            printf("Bang T1\n");
+            // printf("Bang T1\n");
             A[i][i] = 1;
             b[i] = 400;
         }else if(count(T2.begin(), T2.end(), i) > 0){
-            printf("Bang T2\n");
+            // printf("Bang T2\n");
             A[i][i] = 1;
             b[i] = 100;
         }else if(count(q3.begin(), q3.end(), i) > 0){
-            printf("Bang q3\n");
+            // printf("Bang q3\n");
             for(auto elem : adjM[i]){
                 if(points[elem].isInner)
                     A[i][elem] = 2;
                 else
                     A[i][elem] = 1;
             }
+            A[i][i]=-4;
             b[i] = 0;
         }else if(count(T4.begin(), T4.end(), i) > 0){
-            printf("Bang T4\n");
+            // printf("Bang T4\n");
             A[i][i] = 1;
             b[i] = 600;
         }else if(count(T5ex.begin(), T5ex.end(), i) > 0){
-            printf("Bang T5\n");
+            // printf("Bang T5\n");
             //preveri rob ali notranjem
             if(points[i].isInner){
-                //notr
+                //notranjem kot
                 for(auto elem : adjM[i]){
                     if(points[elem].isInner)
                         A[i][elem] = 2;
@@ -335,7 +355,7 @@ int main() {
 
             b[i] = -2*(h*dx*200)/k;
         }else{
-                printf("Inner\n");
+                // printf("Inner\n");
                 A[i][i] = -4;
                 for(auto elem : adjM[i]){
                     A[i][elem] = 1;
@@ -459,37 +479,67 @@ int main() {
     // }
     // File.close();
 
-    for(int i=0; i<n; i+=50){
-        cout<<A[i][i]<<endl;
-    }
-
-    // double d;
-    // int ii, jj;
-    // for (int iitt=0; iitt<1; iitt++){
-    //     printf("Iteracija no.%d \n", iitt);
-
-    //     // #pragma omp parallel shared(A, b, T) private(jj, ii, d)
-    //     // {
-    //     //     #pragma omp for
-    //         for(jj=0; jj<n; jj++){
-    //             d = b[jj];
-                
-    //             for(ii=0; ii<n; ii++){
-    //                 if(jj!=ii){
-    //                     d = d - A[jj][ii] * T[ii];
-    //                 }
-                
-    //                 T[jj] = d / A[jj][jj];
-    //             }
-    //         }
-    //     // }
+    // for(int i=0; i<n; i+=50){
+    //     cout<<A[i][i]<<endl;
     // }
+
+    double d;
+    int ii, jj;
+    for (int iitt=0; iitt<1000; iitt++){
+        printf("Iteracija no.%d \n", iitt);
+
+        #pragma omp parallel shared(A, b, T) private(jj, ii, d)
+        {
+            #pragma omp for
+            for(jj=0; jj<n; jj++){
+                d = b[jj];
+                
+                for(ii=0; ii<n; ii++){
+                    if(jj!=ii){
+                        d = d - A[jj][ii] * T[ii];
+                    }
+                
+                    T[jj] = d / A[jj][jj];
+                }
+            }
+        }
+    }
 
     // int ind=0;
     // for(auto i : T){
     //     cout<<ind<<"\t"<<i<<endl;
     //     ind++;
     // }
+
+    ofstream out("rez_moj.vtk");
+
+    out<<"# vtk DataFile Version 3.0"<<endl;
+    out<<"Mesh_1"<<endl;
+    out<<"ASCII"<<endl;
+    out<<"DATASET UNSTRUCTURED_GRID"<<endl;
+    out<<"POINTS "<<n<<" float"<<endl;
+    for(int i = 0; i<n; i++){
+        out<<points[i].x<<" "<<points[i].y<<" 0"<<endl;
+    }
+
+    out<<"CELLS "<<elementi.size()<<" 27580"<<endl;
+    for(auto el: elementi){
+        out<<"4 "<<el.a<<" "<<el.b<<" "<<el.c<<" "<<el.d<<" "<<endl;
+    }
+
+    out<<"CELL_TYPES "<<elementi.size()<<endl;
+    for(auto el: elementi){
+        out<<"9"<<endl;
+    }
+
+    out<<endl<<"POINT_DATA "<<n<<endl;
+    out<<"SCALARS Temperature float 1"<<endl;
+    out<<"LOOKUP_TABLE default"<<endl;
+    for(int i = 0; i<n; i++){
+        out<<T[i]<<endl;
+    }
+    out<<endl;
+    out.close();
 
     return 0;
 }
