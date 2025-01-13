@@ -14,199 +14,182 @@ using namespace std;
 
 int main() {
 
-  // inicializiramo matriko A
-  vector<vector<double>> A;
+	// inicializiramo matriko A
+	vector<vector<double>> A;
 
-  // inicializiramo vektor b;
-  vector<double> b;
-  
-  // podamo ime datoteke
-  std::string filename = "./A_b.txt";
+	// inicializiramo vektor b;
+	vector<double> b;
 
-  // preberemo datoteko
-  std::ifstream infile;
-  infile.open(filename);
+	// podamo ime datoteke
+	std::string filename = "./A_b.txt";
 
-  // preberemo prvo vrstico, v kateri imamo podano velikost matrike A 
-  std::string string_first_line;
-  std::getline(infile, string_first_line);
-  
-  // string_first_line je enak 'A: n=256'
-  // vemo, da je delimiter pri '=', lahko zamenjamo npr. z ' '
-  std::replace(string_first_line.begin(), string_first_line.end(), '=', ' ');
+	// preberemo datoteko
+	std::ifstream infile;
+	infile.open(filename);
 
-  // definiramo stringstream, s katerim je nekoliko lazje shranjevati
-  // podatke iz string-a, ce so loceni z ' '
-  std::istringstream iss(string_first_line);
-  std::string nepomemben_del1; // sem bomo dali string 'A:' iz prve vrstice
-  std::string nepomemben_del2; // sem bomo dali string 'n' iz prve vrstice
-  int n; // sem bomo dali velikost matrike A
+	// preberemo prvo vrstico, v kateri imamo podano velikost matrike A 
+	std::string string_first_line;
+	std::getline(infile, string_first_line);
 
-  // istringstream loci glede na ' ', trenutno imamo 'A: n 256'
-  iss >> nepomemben_del1;
-  iss >> nepomemben_del2;
-  iss >> n;
+	// string_first_line je enak 'A: n=256'
+	// vemo, da je delimiter pri '=', lahko zamenjamo npr. z ' '
+	std::replace(string_first_line.begin(), string_first_line.end(), '=', ' ');
 
-  std::cout << "Velikost matrike A: " << n << "x" << n << std::endl;; 
-  A.reserve(n);
+	// definiramo stringstream, s katerim je nekoliko lazje shranjevati
+	// podatke iz string-a, ce so loceni z ' '
+	std::istringstream iss(string_first_line);
+	std::string nepomemben_del1; // sem bomo dali string 'A:' iz prve vrstice
+	std::string nepomemben_del2; // sem bomo dali string 'n' iz prve vrstice
+	int n; // sem bomo dali velikost matrike A
 
-  // V naslednjih n vrsticah imamo elemente matrike A, zato naredimo
-  // iteracijo, da preberemo in zafilamo matriko A
-  std::string line;
-  for (int iiA=0; iiA < n; iiA++)
-    {
-      // preberemo vrstico
-      if (!getline(infile, line)) {
-            cerr << "Error: Not enough lines in the file." << endl;
-            break;
-        }
-      // std::getline(infile, line);
-      // zamenjamo ';' s  ' ', saj istringstream loci glede na ' '
-      // std::replace(line.begin(), line.end(), ';', ' ');
+	// istringstream loci glede na ' ', trenutno imamo 'A: n 256'
+	iss >> nepomemben_del1;
+	iss >> nepomemben_del2;
+	iss >> n;
 
-      // z istringstream ponovno pretvorimo string
-      // std::istringstream iss_column(line);
+	std::cout << "Velikost matrike A: " << n << "x" << n << std::endl;; 
+	A.reserve(n);
 
-      // definiramo nov vektor, da shranimo vrstico 
-      vector<double> row;
-      row.reserve(n);
-      // sedaj lahko iteriramo po elementih v iss_column
-      size_t start = 0, end = 0;
-        for (int column = 0; column < n; column++) {
-            end = line.find(';', start);
-            double element_a = stod(line.substr(start, end - start)); // Convert substring to double
-            row.emplace_back(element_a);
-            start = (end == string::npos) ? end : end + 1; // Move to the next value
-        }
+	// V naslednjih n vrsticah imamo elemente matrike A, zato naredimo
+	// iteracijo, da preberemo in zafilamo matriko A
+	std::string line;
+	for (int iiA=0; iiA < n; iiA++)
+	{
+			// preberemo vrstico
+			if (!getline(infile, line)) {
+				cerr << "Error: Not enough lines in the file." << endl;
+				break;
+		}
+		// std::getline(infile, line);
+		// zamenjamo ';' s' ', saj istringstream loci glede na ' '
+		// std::replace(line.begin(), line.end(), ';', ' ');
 
-      // ko imamo vektor za vrstico, ga damo v A
-      A.emplace_back(move(row));
+		// z istringstream ponovno pretvorimo string
+		// std::istringstream iss_column(line);
 
-      if(iiA%500==0){
-        std::cout<<"Matrix row: "<<iiA<<" read"<<std::endl;
-      }
-    }
+		// definiramo nov vektor, da shranimo vrstico 
+		vector<double> row;
+		row.reserve(n);
+		// sedaj lahko iteriramo po elementih v iss_column
+		size_t start = 0, end = 0;
+		for (int column = 0; column < n; column++) {
+			end = line.find(';', start);
+			double element_a = stod(line.substr(start, end - start)); // Convert substring to double
+			row.emplace_back(element_a);
+			start = (end == string::npos) ? end : end + 1; // Move to the next value
+		}
 
-  // sedaj imamo sestavljeno matriko A. Naslednja vrstica je prazna,
-  // zato jo samo preberemo in ne naredimo nicesar. Poglejte v
-  // datoteko datoteka_A_b.txt
-  std::string empty_line;
-  std::getline(infile, empty_line);
+		// ko imamo vektor za vrstico, ga damo v A
+		A.emplace_back(move(row));
 
-  // prebrati moramo se vektor b
-  std::string string_line_b;
-  std::getline(infile, string_line_b);
+		if(iiA%500==0){
+			std::cout<<"Matrix row: "<<iiA<<" read"<<std::endl;
+		}
+	}
 
-  // lahko uporabimo podoben trik kot pri prvi vrstici
-  std::replace(string_line_b.begin(), string_line_b.end(), '>', ' ');
-  std::istringstream iss_b(string_line_b);
-  int n_b; // sem bomo dali velikost vektorja b (ki je identicna velikosti A)
+	// sedaj imamo sestavljeno matriko A. Naslednja vrstica je prazna,
+	// zato jo samo preberemo in ne naredimo nicesar. Poglejte v
+	// datoteko datoteka_A_b.txt
+	std::string empty_line;
+	std::getline(infile, empty_line);
 
-  iss_b >> nepomemben_del1;
-  iss_b >> nepomemben_del2;
-  iss_b >> n_b;
+	// prebrati moramo se vektor b
+	std::string string_line_b;
+	std::getline(infile, string_line_b);
 
-  std::cout << "Velikost vektorja b: " << n_b << std::endl;; 
+	// lahko uporabimo podoben trik kot pri prvi vrstici
+	std::replace(string_line_b.begin(), string_line_b.end(), '>', ' ');
+	std::istringstream iss_b(string_line_b);
+	int n_b; // sem bomo dali velikost vektorja b (ki je identicna velikosti A)
 
-  // naredimo iteracijo po naslednjem n_b stevilu vrstic
-  for (int iib=0; iib<n_b; iib++)
-    {
-      // preberemo vrstico in shranimo element v vrstici v vektor b
-      std::string line_b_element;
-      std::getline(infile, line_b_element);
-      std::istringstream iss_b_element(line_b_element);
-      
-      double b_element=0;
-      iss_b_element >> b_element;
+	iss_b >> nepomemben_del1;
+	iss_b >> nepomemben_del2;
+	iss_b >> n_b;
 
-      b.push_back(b_element);
-    }
+	std::cout << "Velikost vektorja b: " << n_b << std::endl;; 
 
-  // Sedaj imamo A in b. Lahko napisemo Gauss-Seidel metodo. Najprej
-  // inicializiramo vektor resitve T, npr. na 100 stopinj.
-  vector<double> T;
-  for (int iiT=0; iiT<n_b; iiT++)
-    {
-      T.push_back(100);
-    }
+	// naredimo iteracijo po naslednjem n_b stevilu vrstic
+	for (int iib=0; iib<n_b; iib++)
+	{
+		// preberemo vrstico in shranimo element v vrstici v vektor b
+		std::string line_b_element;
+		std::getline(infile, line_b_element);
+		std::istringstream iss_b_element(line_b_element);
 
-  
+		double b_element=0;
+		iss_b_element >> b_element;
 
+		b.push_back(b_element);
+	}
 
-    //Smeni number of threads
-    int max_threads = omp_get_max_threads();
-    string res[max_threads];
+	// Sedaj imamo A in b. Lahko napisemo Gauss-Seidel metodo. Najprej
+	// inicializiramo vektor resitve T, npr. na 100 stopinj.
+	vector<double> T;
+	for (int iiT=0; iiT<n_b; iiT++)
+	{
+		T.push_back(100);
+	}
 
-    for(int i=1; i<=max_threads; i++){
-            auto start_time = std::chrono::high_resolution_clock::now();
-            vector<double> T;
-            for (int iiT=0; iiT<n_b; iiT++)
-                {
-                T.push_back(100);
-                }
+	//Smeni number of threads
+	int max_threads = omp_get_max_threads();
+	string res[max_threads];
+
+	for(int i=1; i<=max_threads; i++){
+		auto start_time = std::chrono::high_resolution_clock::now();
+		vector<double> T;
+
+		for (int iiT=0; iiT<n_b; iiT++)
+			T.push_back(100);
 
 
-            omp_set_num_threads(i);
+		omp_set_num_threads(i);
 
 
-            double d;
-            int ii, jj;
-            vector<double> Told = T;
-            for (int iitt=0; iitt<1000; iitt++)
-                {
-                if(iitt%100==0)
-                  cout<<"Iteracija "<<iitt+1<<" so "<<i<<" threads"<<endl;
-                Told = T;
+		double d;
+		int ii, jj;
+		vector<double> Told = T;
+		for (int iitt=0; iitt<1000; iitt++)
+		{
+			if(iitt%100==0)
+				cout<<"Iteracija "<<iitt+1<<" so "<<i<<" threads"<<endl;
+			Told = T;
 
-                // Each thread calculates a new T value based on T values from the previous iteration(Told)
-                // We can better the performance by giving it more threads to work with, with num_threads(n)
-                // In Eijkhout's The Science of Computing[7.9.1], it is suggested that we can parallelize this method by multi-coloring or with wavefronts.
+			#pragma omp parallel shared(A, b, T, Told) private(jj, ii, d)
+			{
+				#pragma omp for
+				for(jj=0; jj<n; jj++){
+					d = b[jj];
 
-                #pragma omp parallel shared(A, b, T, Told) private(jj, ii, d)
-                {
+					for(ii=0; ii<n; ii++){
+						if(jj!=ii){
+							d -= A[jj][ii] * T[ii];
+						}
+					}
+					T[jj] = d / A[jj][jj];
+				}
+			}
+		} 
 
-                #pragma omp for
-                for(jj=0; jj<n; jj++){
-                    d = b[jj];
-                    
-                    for(ii=0; ii<n; ii++){
-                    if(jj!=ii){
-                        d -= A[jj][ii] * T[ii];
-                    }
-                    }
-
-                    
-                    T[jj] = d / A[jj][jj];
-                }
-
-                }
-                } 
-
-            auto end_time = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> time_duration = end_time - start_time;
-            string output = "Thread: "+to_string(i)+"\t duration "+to_string(time_duration.count())+" seconds\n";
-            // cout<<output;
-            res[i-1]=output;
-            std::cout << "Time of Gauss-Seidel: " << time_duration.count() << " seconds" << std::endl;
-            
-            // Za izpis maksimalne vrednosti
-            double max_T = 0;
-            for (int iiT=0; iiT<n_b; iiT++)
-                {
-                if (T[iiT] > max_T){
-                    max_T =T[iiT];
-                }
-                }
-            std::cout << "Max. temperature: " << max_T << " degree C." << endl;
+		auto end_time = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> time_duration = end_time - start_time;
+		string output = "Thread: "+to_string(i)+"\t duration "+to_string(time_duration.count())+" seconds\n";
+		res[i-1]=output;
+		std::cout << "Time of Gauss-Seidel: " << time_duration.count() << " seconds" << std::endl;
 
 
-    }
+		double max_T = 0;
+		for (int iiT=0; iiT<n_b; iiT++)
+		{
+			if (T[iiT] > max_T){
+				max_T =T[iiT];
+			}
+		}
+		std::cout << "Max. temperature: " << max_T << " degree C." << endl;
 
+	}
 
-    for(auto st: res){
-      cout<<st;
-    }
-
-
-  return 0;
+	for(auto st: res)
+		cout<<st;
+	
+	return 0;
 }
