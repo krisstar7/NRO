@@ -1,6 +1,6 @@
 # Proektna naloga NRO
 
-> [!POMEMBNO]
+> [!IMPORTANT]
 > Vsi .cpp datoteke kompiliraj s flag -fopenmp. Ta projekt je o paralelizaciji :exploding_head:
 
 ### Glavne datoteke
