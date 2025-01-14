@@ -1,14 +1,11 @@
-% Read the file A_b.txt and perform parallelized Gauss-Seidel
 fileName = 'A_b.txt';
 
-% Open and parse the file
+
 fileID = fopen(fileName, 'r');
 
-% Read matrix A
 line = fgetl(fileID);
 
 n = sscanf(line, 'A: n=%d');
-
 A = zeros(n, n);
 
 for i = 1:n
