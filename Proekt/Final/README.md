@@ -15,3 +15,4 @@
 - primer2mreza.txt - vhodni podatki
 - ./Imgs - slike za poročilo
 - rez.vtk - Rezultantni vtk file
+- A_b.txt - Ni je dodaden, kjer je velik. Lahko generirate s exportA_b.cpp
